@@ -1,7 +1,6 @@
 package com.example.contactlist;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -9,13 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,26 +30,24 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ArrayList<ContactModel> arrayList = new ArrayList<ContactModel>();
-    HashSet<ContactModel> contactsSet;
     MainAdapter adapter;
     Database database;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recycler_view);
+
         database = new Database(this, "contacts.sqlite", null, 1);
         database.queryData("CREATE TABLE IF NOT EXISTS Contacts(Id INTEGER PRIMARY KEY AUTOINCREMENT, Name String, Number String)");
-        // Kiem tra quyen truy cap danh ba
+
         checkPermission();
     }
 
@@ -103,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<ContactModel> duplicateContacts = findDuplicateContactByPhoneNumber();
 
         for (ContactModel contactModel : duplicateContacts) {
-            ArrayList<ContactModel> arr = getContactByPhoneNumber(contactModel.getNumber());
+            ArrayList<ContactModel> arr = getContactByPhoneNumber(contactModel.getPhoneNumber());
             for (ContactModel c : arr) {
                 if (contactModel.getId() != c.getId()) {
                     deleteContact(c.getId());
@@ -118,8 +111,8 @@ public class MainActivity extends AppCompatActivity {
     {
         arrayList.clear();
         readContactListFromPhone();
-        if (!isEmptyDatabase(database)) {                       // Check db trong k
-                    database.queryData("DELETE FROM Contacts");     // Co du lieu thi xoa het
+        if (!isEmptyDatabase(database)) {
+                    database.queryData("DELETE FROM Contacts");
         }
 
         // Nap lai vao db data tu danh ba trong may
@@ -164,8 +157,8 @@ public class MainActivity extends AppCompatActivity {
     public void importCSV(){
         try {
             arrayList.clear();
-            if (!isEmptyDatabase(database)) {                       // Check db trong k
-                database.queryData("DELETE FROM Contacts");     // Co du lieu thi xoa het
+            if (!isEmptyDatabase(database)) {
+                database.queryData("DELETE FROM Contacts");
             }
 
 
@@ -173,7 +166,6 @@ public class MainActivity extends AppCompatActivity {
             CSVReader reader = new CSVReader(new FileReader(csvfile.getAbsolutePath()));
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
-                // nextLine[] is an array of values from the line
                 ContactModel contactModel = new ContactModel(Integer.parseInt(nextLine[0]), nextLine[1], nextLine[2]);
                 addContact(contactModel);
             }
@@ -199,13 +191,13 @@ public class MainActivity extends AppCompatActivity {
     private void readContactListFromPhone() {
         Uri uri = ContactsContract.Contacts.CONTENT_URI;
 
-        // sort tăng dần theo tên A-Z
+        // Sorting contact by name in ASC
         String sort = ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME+" ASC";
         Cursor cursor = getContentResolver().query(
                 uri,null,null,null, sort
         );
 
-        // So contact trong danh ba lon hon 0
+        // Contact is not empty
         if (cursor.getCount() > 0) {
             while(cursor.moveToNext()){
                 //Get contact id
@@ -218,9 +210,7 @@ public class MainActivity extends AppCompatActivity {
                         ContactsContract.Contacts.DISPLAY_NAME
                 ));
 
-                // Tạo phone uri
                 Uri uriPhone = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-                // Tao selection uri
                 String selection = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " =?";
 
                 Cursor phoneCursor = getContentResolver().query(
@@ -234,16 +224,15 @@ public class MainActivity extends AppCompatActivity {
 
                     ContactModel model = new ContactModel();
                     model.setName(name);
-                    model.setNumber(number);
+                    model.setPhoneNumber(number);
                     arrayList.add(model);
 
                     phoneCursor.close();
                 }
             }
             cursor.close();
-
         }
-        //set data vao list view
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MainAdapter(MainActivity.this,this, arrayList);
         recyclerView.setAdapter(adapter);
@@ -292,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addContact(ContactModel contactModel) {
-        database.queryData("INSERT INTO Contacts VALUES(null, '" + contactModel.getName() + "', '" + contactModel.getNumber() + "')");
+        database.queryData("INSERT INTO Contacts VALUES(null, '" + contactModel.getName() + "', '" + contactModel.getPhoneNumber() + "')");
     }
 
     private void deleteContact(int id) {
@@ -302,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
     private  void checkPermission(){
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_CONTACTS)
                 != PackageManager.PERMISSION_GRANTED)
-            // Yeu cau quyen truy cap danh ba neu khong co quyen
+            // Send access permisson if the app haven't been granted access yet
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 100);
         else {
             readContactListFromPhone();   // cho nay la lay data tu danh ba trong may phong cho truong hop chay app lan dau
@@ -318,10 +307,10 @@ public class MainActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 100 && grantResults.length > 0 && grantResults[0]
             == PackageManager.PERMISSION_GRANTED){
-            // khi duoc cap quyen lap tuc get contact list
+            // Allow access phone contact
             readContactListFromPhone();
         } else {
-            // khi bi tu choi quyen truy cap danh ba
+            // Access denied
             Toast.makeText(MainActivity.this, "Permission Dennied.", Toast.LENGTH_SHORT).show();
             checkPermission();
         }

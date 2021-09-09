@@ -1,22 +1,24 @@
 package com.example.contactlist;
 
 public class ContactModel {
-    int id;
-    String name, number;
+    Integer id;
+    String name;
+    String phoneNumber;
+
     public ContactModel() {
     }
 
-    public ContactModel(int id, String name, String number) {
+    public ContactModel(Integer id, String name, String phoneNumber) {
         this.id = id;
         this.name = name;
-        this.number = number;
+        this.phoneNumber = phoneNumber;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -28,12 +30,12 @@ public class ContactModel {
         this.name = name;
     }
 
-    public String getNumber() {
-        return number;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     @Override
@@ -41,7 +43,7 @@ public class ContactModel {
         return "ContactModel{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", number='" + number + '\'' +
+                ", phone number='" + phoneNumber + '\'' +
                 '}';
     }
 }
