@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/merge"
-        android:title= "Merge duplicate"/>
+        android:title= "Merge Duplicate"/>
     <item android:id="@+id/ReadContacts"
-        android:title= "Read contacts and Sync to app" />
+        android:title= "Sync Phone's Contact" />
     <item android:id="@+id/ExportCSV"
         android:title= "Export CSV File" />
     <item android:id="@+id/ImportCSV"

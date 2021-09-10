@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         }
         catch(Exception sqlEx)
         {
-            Log.e("MainActivity", sqlEx.getMessage(), sqlEx);
+            Log.e("SQLite Ex", sqlEx.getMessage());
         }
     }
 
@@ -160,7 +160,6 @@ public class MainActivity extends AppCompatActivity {
             if (!isEmptyDatabase(database)) {
                 database.queryData("DELETE FROM Contacts");
             }
-
 
             File csvfile = new File(Environment.getExternalStorageDirectory() + "/contacts.csv");
             CSVReader reader = new CSVReader(new FileReader(csvfile.getAbsolutePath()));
@@ -181,8 +180,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean isEmptyDatabase(Database db) {
         Cursor contactList = database.getData("SELECT COUNT(*) FROM Contacts");
         contactList.moveToFirst();
+
         int icount = contactList.getInt(0);
-        Log.e("Table count", String.valueOf(icount));
         if(icount > 0)
             return false;
         return  true;
@@ -299,7 +298,6 @@ public class MainActivity extends AppCompatActivity {
             adapter = new MainAdapter(MainActivity.this,this, arrayList);
             recyclerView.setAdapter(adapter);
         }
-
     }
 
     @Override
