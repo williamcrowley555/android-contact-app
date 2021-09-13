@@ -115,7 +115,6 @@ public class MainActivity extends AppCompatActivity {
                     database.queryData("DELETE FROM Contacts");
         }
 
-        // Nap lai vao db data tu danh ba trong may
         for (ContactModel contactModel : arrayList) {
             addContact(contactModel);
         }
@@ -293,7 +292,6 @@ public class MainActivity extends AppCompatActivity {
             // Send access permisson if the app haven't been granted access yet
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 100);
         else {
-            readContactListFromPhone();   // cho nay la lay data tu danh ba trong may phong cho truong hop chay app lan dau
             arrayList = getContactList();
             adapter = new MainAdapter(MainActivity.this,this, arrayList);
             recyclerView.setAdapter(adapter);
