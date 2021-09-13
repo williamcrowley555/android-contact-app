@@ -292,6 +292,7 @@ public class MainActivity extends AppCompatActivity {
             // Send access permisson if the app haven't been granted access yet
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_CONTACTS}, 100);
         else {
+            readContactListFromPhone();
             arrayList = getContactList();
             adapter = new MainAdapter(MainActivity.this,this, arrayList);
             recyclerView.setAdapter(adapter);
